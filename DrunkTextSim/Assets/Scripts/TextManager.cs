@@ -17,7 +17,7 @@ public class TextManager : MonoBehaviour
     private Button[] letterButton = new Button[26];
 
     [SerializeField]
-    private Image playerTextMessageImage;
+    private Image playerTextMessageImage, jordanTextMessageImage, currentlyTypingImage;
 
     [SerializeField]
     private Text playerTextMessage;
@@ -27,6 +27,9 @@ public class TextManager : MonoBehaviour
 
     [SerializeField]
     private Keyboard keyboard;
+
+    [SerializeField]
+    private float secondsBeforeJordanReply = 2.0f;
 
     private Story inkStory;
     private string[] letters = new string[26] { "q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "a", "s", "d", "f", "g", "h", "j", "k", "l", "z", "x", "c", "v", "b", "n", "m" };
@@ -38,11 +41,16 @@ public class TextManager : MonoBehaviour
     private AudioSource audioSource;
     private int[] choiceIndex = new int[2];
 
+    private string[] splitDialogue;
+    private string dialogue;
+
     void Awake()
     {
         inkStory = new Story(inkAsset.text);
         audioSource = GetComponent<AudioSource>();
         playerTextMessageImage.enabled = false;
+        jordanTextMessageImage.enabled = false;
+        currentlyTypingImage.enabled = false;
         playerTextMessage.text = "";
         jordanTextMessage.text = "";
 
@@ -68,8 +76,10 @@ public class TextManager : MonoBehaviour
         {
             makingChoice = false;
             Debug.Log(inkStory.Continue());
-            string dialogue = inkStory.currentText;
-            string[] splitDialogue = dialogue.Split(':');
+            //string dialogue = inkStory.currentText;
+            dialogue = inkStory.currentText;
+            //string[] splitDialogue = dialogue.Split(':');
+            splitDialogue = dialogue.Split(':');
 
             if (splitDialogue[0] == "You")
             {
@@ -87,8 +97,10 @@ public class TextManager : MonoBehaviour
             else if (splitDialogue[0] == "Jordan")
             {
                 jordanTextMessage.text = splitDialogue[1];
+                jordanTextMessageImage.enabled = true;
                 audioSource.PlayOneShot(jordanTextClip);
                 CheckForDialogueSpeaker();
+                //StartCoroutine(WaitForJordanReply());
             }
         }
 
@@ -101,6 +113,8 @@ public class TextManager : MonoBehaviour
                 Choice choice = inkStory.currentChoices[e];
                 string[] splitChoiceText = choice.text.Split(':');
                 Debug.Log("Choice " + (e + 1) + ". " + choice.text);
+                splitChoiceText[1] = splitChoiceText[1].TrimStart(' ');
+                Debug.Log("SplitChoicetext: " + splitChoiceText[1] + ".");
 
                 foreach (char c in splitChoiceText[1])
                 {
@@ -113,6 +127,17 @@ public class TextManager : MonoBehaviour
             }
         }
     }
+
+    //IEnumerator WaitForJordanReply()
+    //{
+    //    jordanTextMessageImage.enabled = false;
+    //    currentlyTypingImage.enabled = true;
+    //    yield return new WaitForSeconds(secondsBeforeJordanReply);
+    //    jordanTextMessage.text = splitDialogue[1];
+    //    jordanTextMessageImage.enabled = true;
+    //    audioSource.PlayOneShot(jordanTextClip);
+    //    CheckForDialogueSpeaker();
+    //}
 
     private void OnInputEntered(string input)
     {
