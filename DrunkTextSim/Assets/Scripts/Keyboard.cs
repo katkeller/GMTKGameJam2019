@@ -7,10 +7,10 @@ using System;
 public class Keyboard : MonoBehaviour
 {
     [SerializeField]
-    private Text inputField, playerTextMessage;
+    private Text inputField;
 
-    [SerializeField]
-    private Image playerTextMessageImage;
+    //[SerializeField]
+    //private Image playerTextMessageImage;
 
     [SerializeField]
     private AudioClip typeClip, sendClip;
@@ -23,8 +23,8 @@ public class Keyboard : MonoBehaviour
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
-        playerTextMessageImage.enabled = false;
-        playerTextMessage.text = "";
+        //playerTextMessageImage.enabled = false;
+        //playerTextMessage.text = "";
         inputField.text = "";
     }
 
@@ -33,14 +33,19 @@ public class Keyboard : MonoBehaviour
         input = input + letter;
         inputField.text = input;
         audioSource.PlayOneShot(typeClip);
+        Debug.Log("Keyboard input:" + input);
     }
 
     public void SendMessage()
     {
-        audioSource.PlayOneShot(sendClip);
         InputEntered?.Invoke(input);
-        playerTextMessage.text = input;
-        playerTextMessageImage.enabled = true;
+        ResetInput();
+    }
+
+    public void ResetInput()
+    {
+        inputField.text = "";
         input = "";
+        Debug.Log("keyboard input: " + input);
     }
 }
